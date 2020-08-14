@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jujumarket.board.mapper.BoardQNAMapper">
+
+	<select id="getList"
+		resultType="com.jujumarket.board.domain.BoardQNAVO">
+<![CDATA[
+  select * from T_Board_QNA ]]>
+	</select>
+
+   <select id="getResultTotal" resultType="int">
+      select count(*) 
+      from t_board_qna 
+      where title like '%' || #{keyword} || '%' 
+      or content like '%' || #{keyword} || '%'
+      or idNo like '%' || #{keyword} || '%'
+   </select>
+
+
+	<insert id ="insert">
+	insert into t_board_qna (postingNo,title,content,idNo)
+	values (seq_board_QNA.nextval, #{title},#{content},#{idNo})
+	</insert>
+	
+	<insert id = "insertSelectKey">
+	<selectKey keyProperty="postingNo" order="BEFORE" resultType="String">
+	select seq_board_QNA.nextval from dual
+	</selectKey>
+	insert into t_board_qna (postingNo,title,content,idNo)
+	values (#{postingNo},#{title},#{content},#{idNo})
+	</insert>
+	
+	<select id="read" resultType ="com.jujumarket.board.domain.BoardQNAVO">
+		select * from t_board_QNA where postingNo = #{postingNo}
+	</select>
+
+	
+	<update id="update">
+	update t_board_QNA
+	set title = #{title},
+	content = #{content},
+	idNo = #{idNo},
+	updateDate = sysdate	
+	
+	where postingNo = #{postingNo}
+
+	</update>
+	
+	
+   
+   <sql id="criteria">
+   <trim prefix="(" suffix=")AND" prefixOverrides="OR">
+   <foreach item='type' collection="typeArr">
+   <trim prefix ="OR">
+   <choose>
+   <when test="type =='T'.toString()">
+   title like '%' ||#{keyword}||'%'
+   </when>
+   <when test="type =='C'.toString()">
+   content like '%' ||#{keyword}||'%'
+   </when>
+   <when test="type =='I'.toString()">
+   idNo like '%' ||#{keyword}||'%'
+   </when>
+   </choose>
+   </trim>
+   </foreach>
+   </trim><!--  prefix end -->
+   </sql>
+   
+  
+<!-- 나의 1:1문의  -->
+	<select id="getMyQnAListByIdNo" resultType="com.jujumarket.board.domain.BoardQNAVO">
+	   <![CDATA[
+	   
+	   
+		select *
+  		from(
+  				select row_number() over(order by regdate desc) as rn, postingNo, title, regdate
+    			from t_board_qna		 
+    			where idNo = #{idNo}
+                order by regdate desc
+    			)
+	    where rn <= #{cri.pageNum} * #{cri.amount}
+    	and rn > (#{cri.pageNum}-1) * #{cri.amount}
+	   
+
+	
+	      ]]>
+	</select>
+	
+	<!-- 나의 1:1문의 갯수 -->
+	<select id="getMyQnACountByIdNo" resultType="Integer">
+		select
+		count(postingNo) from t_board_qna where idNo = #{idNo}
+	</select>
+	
+
+ 
+ 
+ 
+   <select id="getListWithPaging" resultType="com.jujumarket.board.domain.BoardQNAVO">
+   <![CDATA[
+   select
+       postingNo,title,content,idNo,regDate
+       from
+       (
+       
+       select /*+INDEX_DESC(t_board_qna pk_board) */
+       rownum rn,postingNo,title,content,idNo,regDate
+       
+       from
+       (select *from t_Board_QNA order by postingNo desc) 
+       
+       where 
+     
+       
+       
+   ]]>
+  
+  <include refid="criteria"></include>
+   
+   <![CDATA[
+   
+    rownum <= #{pageNum}*#{amount}
+  
+       )
+       where rn > (#{pageNum}-1) * #{amount}
+   ]]>
+   </select>
+
+    <select id="getTotalCount" resultType="int">
+   select count(*) from t_board_qna 
+<!--    
+   where 
+   
+   <include refid="criteria"></include>
+   
+   
+   postingNo > '0' -->
+   
+      </select>
+      
+      <!-- idNo로 마이페이지 1:1 문의에 리스트 뿌려주는 쿼리 추가 0802 -->
+	<select id="getListByIdNo"
+		resultType="com.jujumarket.board.domain.BoardQNAVO">
+ 			 select * from T_Board_QNA	
+ 			 where idNo = #{idNo}
+ 			 
+ 	</select>
+ 	
+ 	<select id="getResultTotalByIdNo" resultType="int">
+      select count(*) 
+      from (select * from t_board_qna
+      where idNo = #{idNo})
+      where title like '%' || #{keyword} || '%' 
+      or content like '%' || #{keyword} || '%'
+      or idNo like '%' || #{keyword} || '%'
+      
+   </select>
+   
+   <select id="getListWithPagingByIdNo" resultType="com.jujumarket.board.domain.BoardQNAVO">
+      select postingNo,title,content,idNo,regDate
+       from(       
+      	 	select 
+       		rownum rn,postingNo,title,content,idNo,regDate
+       		from(
+       			select *from t_Board_QNA 
+       			where idNo = #{idNo}
+       			order by postingNo desc
+       			)
+       		)
+   
+   </select>
+   
+		<delete id="delete">
+	delete from t_board_QNA where postingNo = #{postingNo}
+	
+	</delete>
+	
+   
+   <select id ="getIdNoByPostingNo" resultType="String">
+		select idNo
+		from t_board_qna
+		where postingNo = #{postingNo}
+   
+   </select>
+  
+
+</mapper>

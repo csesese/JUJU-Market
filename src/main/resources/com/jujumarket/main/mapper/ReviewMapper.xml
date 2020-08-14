@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jujumarket.main.mapper.ReviewMapper">
+
+	<select id="getList" resultType="com.jujumarket.main.domain.ReviewVO">
+	   <![CDATA[
+	   		select r.*, m.emailAccount 
+	   		from t_review r, t_member m 
+	   		where r.idNo = m.idNo 
+	   		and itemCode = #{itemCode} 
+	   		order by regDate DESC
+	   ]]>
+	</select>
+	
+	<select id="getListWithPaging" resultType="com.jujumarket.main.domain.ReviewVO">
+      <![CDATA[
+      		select r.*, m.emailAccount
+			from (select /*+INDEX(t_review idx_review) */
+			    rownum rn, reviewNo, reviewTitle, reviewContent, reviewImg, score, regDate, updateDate, orderCode, itemCode, idNo
+			    from t_review
+			    where itemCode = #{itemCode}
+			        and reviewNo > 0
+			        and rownum <= #{cri.pageNum} * #{cri.amount}
+			    ) r,
+			    t_member m
+			where r.idno = m.idno 
+			and rn > (#{cri.pageNum} -1) * #{cri.amount}
+
+      ]]>
+   	</select>
+      	<!-- select reviewNo, reviewTitle, reviewContent, reviewImg, score, regDate, updateDate, orderCode, itemCode, idNo
+      	from (select /*+INDEX(t_review idx_review) */
+			rownum rn, reviewNo, reviewTitle, reviewContent, reviewImg, score, regDate, updateDate, orderCode, itemCode, idNo
+			from t_review
+			where itemCode = #{itemCode}
+				and reviewNo > 0
+				and rownum <= #{cri.pageNum} * #{cri.amount}
+			)
+		where rn > (#{cri.pageNum} -1) * #{cri.amount} -->
+	
+	<insert id="insert">
+		insert into t_review (reviewNo, reviewTitle, reviewContent, reviewImg, score, orderCode, itemCode, idNo) 
+		values seq_review.nextval, #{reviewTitle}, #{reviewContent}, #{reviewImg}, #{score}, 'orderCode', #{itemCode}, #{idNo})
+	</insert>
+	
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="reviewNo" order="BEFORE" resultType="String">
+			select seq_review.nextval from dual
+		</selectKey>
+		
+		insert into t_review (reviewNo, reviewTitle, reviewContent, reviewImg, score, orderCode, itemCode, idNo)
+		values (#{reviewNo}, #{reviewTitle}, #{reviewContent}, #{reviewImg}, #{score}, 'orderCode', #{itemCode}, #{idNo})
+	</insert>
+	
+	<select id="read" resultType="com.jujumarket.main.domain.ReviewVO">
+		select * from t_review where reviewNo = #{reviewNo}
+	</select>
+	
+	<delete id="delete">
+		delete from t_review where reviewNo = #{reviewNo}
+	</delete>
+	
+	<update id="update">
+		update t_review
+		set reviewTitle = #{reviewTitle}, reviewContent = #{reviewContent}, reviewImg = #{reviewImg}, 
+		score = #{score}, updateDate = current_timestamp
+		where reviewNo = #{reviewNo}
+	</update>
+	
+	<select id="getCountByItemCode" resultType="int">
+		<![CDATA[
+	   		select count(reviewNo) from t_review where itemCode = #{itemCode}
+	   ]]>
+	</select>
+	
+	<select id="getMainReview" resultType="com.jujumarket.main.domain.ReviewVO">
+		<![CDATA[
+			select * from t_review where score=5 and reviewImg is not null and rownum <=5
+		]]>
+	</select>
+	
+	<select id="getOrderStat" resultType="com.jujumarket.order.domain.OrderRequestVO">
+		select o.*, i.itemCode 
+		from t_order o, t_order_info i
+		where o.orderCode = i.orderCode
+		and o.idNo = #{idNo}
+	</select>
+	
+</mapper>

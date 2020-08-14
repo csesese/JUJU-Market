@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jujumarket.admin.mapper.QnaListMapper">
+
+<select id="getQnaList" resultType="com.jujumarket.admin.domain.QnaVO">
+<![CDATA[select  a.*
+from(select rownum rn , b.*
+     from
+        (select q.title,q.content, regDate ,q.idNo , t.emailAccount,q.postingNo
+		from t_board_qna q, t_member t
+		where q.idno=t.idno 
+		order by regDate desc)b
+	where rownum <= #{pageNum} * #{amount}
+			)a
+where rn > (#{pageNum} -1) * #{amount}
+
+      ]]>
+</select>
+
+<select id="QnalistTotal" resultType="int">
+select count(*) total
+from t_board_qna
+</select>
+
+</mapper>

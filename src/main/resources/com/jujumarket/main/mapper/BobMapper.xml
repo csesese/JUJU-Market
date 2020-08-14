@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jujumarket.main.mapper.BobMapper">
+
+
+<select id="wholebest" resultType="com.jujumarket.main.domain.BoardItemVO">
+   
+<![CDATA[
+
+select rl.*
+from(
+	select r.itemCode, t.itemChr, t.itemName, t.price, t.normPrice,t.saleStat ,t.idNo ,t.itemImg1,t.classCode,t.regDate,t.itemContent
+	from (
+	select count(itemCode) orderCount ,itemCode
+	from t_order_history
+	group by itemcode
+	 )r , t_item t
+	where r.itemCode= t.itemCode
+    order by orderCount DESC) rl
+    where ]]> 
+    <![CDATA[
+    rownum<10  ]]> 
+</select>
+
+<select id="reviewbest" resultType="com.jujumarket.main.domain.BoardItemVO">
+
+ <![CDATA[
+select rl.*
+from(
+	select r.itemCode, t.itemChr, t.itemName, t.price, t.normPrice,t.saleStat ,t.idNo,t.itemImg1
+	from (
+	select  itemcode ,avg(score) reviewAvg , count(itemCode) reviewCnt
+	from t_review
+	group by itemcode
+	order by reviewAvg DESC , reviewCnt DESC )r , t_item t
+	where r.itemCode= t.itemCode) rl
+where 
+]]>
+	 <![CDATA[
+ 
+ 	 ROWNUM<10
+	
+	 ]]>
+
+</select>
+
+
+</mapper>
