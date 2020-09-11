@@ -45,7 +45,7 @@ http://13.125.131.54:8080/
  - 통계 관리 
 ```
 ## ERD
-```
+
 ![주주ERD](https://user-images.githubusercontent.com/63036918/92902102-f6eab680-f45b-11ea-9f57-c6ed3bd465cf.png)
 
-```
+
