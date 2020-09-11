@@ -6,37 +6,37 @@
 ##주요 기능 설명
 ===================
 ```
-### 1. admin
+1. admin
       - 배너관리 
       - 게시판 관리
       - 회원 관리
       - 통계 관리 
-### 2. basket
+2. basket
       + 주문 
-### 3. community
+3. community
       + FAQ 
       + 공지사항 
-### 4. main
+4. main
       + 메인 화면 
-### 5.member
+5.member
       + 회원가입
       + 로그인 
       + 비번/아이디 찾기
-### 6. mypage
+6. mypage
       + QnA
       + 회원정보 수정
       + 비밀번호 변경
       + 나의 상품평
       + 단골 
       + 상품 문의 
-### 7. order
+7. order
       + 결재 
-### 8. product
+8. product
       + 상품
       + 상세 페이지
       + 상점
       + 최근 본 상품
-### 9. shop
+9. shop
       + 단골 리스트
       + 상품 등록, 수정 , 삭제 
       + 통계 관리 
